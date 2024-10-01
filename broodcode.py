@@ -5,8 +5,17 @@ import pickle
 from datetime import date
 from collections import defaultdict
 
+APP_VERSION = "1.1.0"
+
 codes = {}
 versions = []
+
+def print_header(title):
+    print(f"""
+____________________________
+{title}
+____________________________
+""")
 
 def calculate_price(bread_type, totals, product):
     org_price = price = round(product["price"]*100 + bread_type["surcharge"]*100)
@@ -34,37 +43,67 @@ def build_sandwich_menu():
 
     totals = {"profit": 0, "count": 0}
 
-    bread = fetch_menu()
+    menu = fetch_menu()
 
-    for product in sorted(bread["products"], key = lambda product: product["price"]):
+    print_header("Freshly topped sandwiches")
+
+    for product in sorted(menu["products"], key = lambda product: product["price"]):
         if not product["breadtypes"]:
             continue
         compatible_bread_type_ids = json.loads(product["breadtypes"])
-        if 41 not in compatible_bread_type_ids: # Only regular sandwiches
+        if 41 not in compatible_bread_type_ids:
             continue
 
         versions.clear()
 
         for bread_type_id in compatible_bread_type_ids:
-            if bread_type_id in bread["breadtypes"]:
-                totals = calculate_price(bread["breadtypes"][bread_type_id], totals, product)
+            if bread_type_id in menu["breadtypes"]:
+                totals = calculate_price(menu["breadtypes"][bread_type_id], totals, product)
 
         print(f"{product['title']}: {' '.join(versions)}")
 
-    with open('data.pickle', 'wb') as file:
-        pickle.dump({'products': bread["products"], 'codes': codes}, file)
+    with open('sandwich.pickle', 'wb') as file:
+        pickle.dump({'products': menu["products"], 'codes': codes}, file)
 
     print(f"Average profit: {round(totals['profit']/totals['count'])} cents per sandwich")
+    print("")
 
-def print_pickle(lines, data):
+def build_paninis_menu():
+    totals = {"profit": 0, "count": 0}
+
+    menu = fetch_menu()
+
+    print_header("Panini's")
+
+    for product in sorted(menu["products"], key = lambda product: product["price"]):
+        compatible_bread_type_ids = json.loads(product["breadtypes"])
+        if product["categorie_id"] != 71:
+            continue
+
+        versions.clear()
+
+        for bread_type_id in compatible_bread_type_ids:
+            if bread_type_id in menu["breadtypes"]:
+                totals = calculate_price(menu["breadtypes"][bread_type_id], totals, product)
+
+        print(f"{product['title']}: {' '.join(versions)}")
+
+    with open('panini.pickle', 'wb') as file:
+        pickle.dump({'products': menu["products"], 'codes': codes}, file)
+
+    print(f"Average profit: {round(totals['profit']/totals['count'])} cents per panini")
+
+def print_pickle(lines, data, header):
     totals = {"profit": 0, "count": 0}
     orders = defaultdict(lambda: defaultdict(int))
 
+    print_header(header)
     for line in lines:
-        title, bread_type, profit = data["codes"][int(line)]
-        orders[title][bread_type] += 1
-        totals["profit"] += profit
-        totals["count"] += 1
+        if int(line) in data["codes"]:
+            title, bread_type, profit = data["codes"][int(line)]
+            orders[title][bread_type] += 1
+            totals["profit"] += profit
+            totals["count"] += 1
 
     for product in data["products"]:
         o = orders.get(product["title"])
@@ -73,13 +112,24 @@ def print_pickle(lines, data):
             print(f"{product['title'].split(':')[0].strip()}: {amounts}")
 
     print(f"\n{totals['count']} sandwiches. {totals['profit']} cents profit!")
+    print("")
 
-def main():
+def open_pickle(filename):
     try:
-        with open('data.pickle', 'rb') as file:
+        with open(f'{filename}.pickle', 'rb') as file:
             data = pickle.load(file)
     except FileNotFoundError:
+        return False
+    return data
+
+def main():
+    sandwich_pickle = open_pickle("sandwich")
+    panini_pickle = open_pickle("panini")
+    if sandwich_pickle == False:
         build_sandwich_menu()
+        codes.clear()
+    if panini_pickle == False:
+        build_paninis_menu()
     else:
         try:
             with open('order.txt') as file:
@@ -88,7 +138,8 @@ def main():
             print("Create order.txt, with a single code per line, or delete data.pickle for a new order round")
             exit(1)
 
-        print_pickle(lines, data)
+        print_pickle(lines, sandwich_pickle, "Freshly topped sandwiches")
+        print_pickle(lines, panini_pickle, "Paninis")
 
         exit()
 
