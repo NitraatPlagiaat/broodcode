@@ -5,7 +5,7 @@ import pickle
 from datetime import date
 from collections import defaultdict
 
-APP_VERSION = "1.1.0"
+APP_VERSION = "1.1.1"
 
 codes = {}
 versions = []
@@ -55,6 +55,7 @@ def build_sandwich_menu():
             continue
 
         versions.clear()
+        compatible_bread_type_ids.sort()
 
         for bread_type_id in compatible_bread_type_ids:
             if bread_type_id in menu["breadtypes"]:
