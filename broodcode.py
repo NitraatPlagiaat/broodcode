@@ -127,7 +127,6 @@ def main():
     panini_pickle = open_pickle("panini")
     if sandwich_pickle == False:
         build_sandwich_menu()
-        codes.clear()
     if panini_pickle == False:
         build_paninis_menu()
     else:
