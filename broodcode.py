@@ -28,7 +28,7 @@ def calculate_price(bread_type, totals, product):
     codes[price] = (product['title'], bread_type['name'], profit)
     versions.append(f"{bread_type['name'].lower()}={price}")
 
-    return {"profit": totals["profit"], "count": totals["count"]}
+    return {"profit": totals["profit"], "count": totals["count"], "product": codes[price], "price": price}
 
 def fetch_menu():
     response = requests.get(f'https://bestellen.broodbode.nl/v2-2/pccheck/null/{date.today()}/afhalen/8?cb=1695969466297', headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0'})
@@ -40,8 +40,8 @@ def fetch_menu():
     return {"products": products, "breadtypes": bread_types_by_id}
 
 def build_sandwich_menu():
-
     totals = {"profit": 0, "count": 0}
+    codes_sandwiches = {}
 
     menu = fetch_menu()
 
@@ -59,18 +59,20 @@ def build_sandwich_menu():
 
         for bread_type_id in compatible_bread_type_ids:
             if bread_type_id in menu["breadtypes"]:
-                totals = calculate_price(menu["breadtypes"][bread_type_id], totals, product)
+                prices = calculate_price(menu["breadtypes"][bread_type_id], totals, product)
+                codes_sandwiches[prices["price"]] = prices["product"]
 
         print(f"{product['title']}: {' '.join(versions)}")
 
     with open('sandwich.pickle', 'wb') as file:
-        pickle.dump({'products': menu["products"], 'codes': codes}, file)
+        pickle.dump({'products': menu["products"], 'codes': codes_sandwiches}, file)
 
     print(f"Average profit: {round(totals['profit']/totals['count'])} cents per sandwich")
     print("")
 
 def build_paninis_menu():
     totals = {"profit": 0, "count": 0}
+    codes_paninis = {}
 
     menu = fetch_menu()
 
@@ -85,12 +87,13 @@ def build_paninis_menu():
 
         for bread_type_id in compatible_bread_type_ids:
             if bread_type_id in menu["breadtypes"]:
-                totals = calculate_price(menu["breadtypes"][bread_type_id], totals, product)
+                prices = calculate_price(menu["breadtypes"][bread_type_id], totals, product)
+                codes_paninis[prices["price"]] = prices["product"]
 
         print(f"{product['title']}: {' '.join(versions)}")
 
     with open('panini.pickle', 'wb') as file:
-        pickle.dump({'products': menu["products"], 'codes': codes}, file)
+        pickle.dump({'products': menu["products"], 'codes': codes_paninis}, file)
 
     print(f"Average profit: {round(totals['profit']/totals['count'])} cents per panini")
 
