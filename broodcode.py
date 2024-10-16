@@ -5,7 +5,7 @@ from collections import defaultdict
 
 import requests
 
-APP_VERSION = "1.1.1"
+APP_VERSION = "1.2.0"
 
 codes = {}
 versions = []
@@ -124,12 +124,12 @@ def build_sandwich_menu():
     )  # Calculate column widths based on max string length in each column
 
     # Print the table
-    print("```markdown")
+    print("")
     print(format_row(rows[0], col_widths))  # Print header row
     print(format_separator(col_widths))  # Print separator
     for row in rows[1:]:
         print(format_row(row, col_widths))  # Print data rows
-    print("```\n")
+    print("\n")
 
     with open("sandwich.pickle", "wb") as file:
         pickle.dump({"products": menu["products"], "codes": codes_sandwiches}, file)
@@ -193,12 +193,12 @@ def build_special_menu():
             )  # Calculate column widths based on max string length in each column
 
             # Print the table
-            print("```markdown")
+            print("")
             print(format_row(rows[0], col_widths))  # Print header row
             print(format_separator(col_widths))  # Print separator
             for r in rows[1:]:
                 print(format_row(r, col_widths))  # Print data rows
-            print("```\n")
+            print("\n")
 
     with open("special.pickle", "wb") as file:
         pickle.dump({"products": menu["products"], "codes": codes_specials}, file)
@@ -244,12 +244,12 @@ def build_paninis_menu():
     )  # Calculate column widths based on max string length in each column
 
     # Print the table
-    print("```markdown")
+    print("")
     print(format_row(rows[0], col_widths))  # Print header row
     print(format_separator(col_widths))  # Print separator
     for row in rows[1:]:
         print(format_row(row, col_widths))  # Print data rows
-    print("```\n")
+    print("\n")
 
     with open("panini.pickle", "wb") as file:
         pickle.dump({"products": menu["products"], "codes": codes_paninis}, file)
@@ -319,12 +319,12 @@ def main():
     profit_sandwiches = None
     profit_paninis = None
     profit_specials = None
+    if special_pickle is False:
+        profit_specials = build_special_menu()
     if sandwich_pickle is False:
         profit_sandwiches = build_sandwich_menu()
     if panini_pickle is False:
         profit_paninis = build_paninis_menu()
-    if special_pickle is False:
-        profit_specials = build_special_menu()
     else:
         try:
             with open("order.txt") as file:
@@ -338,6 +338,9 @@ def main():
         print_pickle(lines, sandwich_pickle, "Freshly topped sandwiches")
         print_pickle(lines, panini_pickle, "Paninis")
         print_pickle(lines, special_pickle, "Special of the Week")
+
+        print("Don't forget to copy the sentence below to put in the notes on the order summary screen:")
+        print("'Graag, als dit mogelijk is, de broodsoorten op de zakken schrijven b.v.d.'")
 
         exit()
 
