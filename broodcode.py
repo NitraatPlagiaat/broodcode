@@ -5,7 +5,7 @@ from collections import defaultdict
 
 import requests
 
-APP_VERSION = "1.2.0"
+APP_VERSION = "1.2.1"
 
 codes = {}
 versions = []
@@ -85,7 +85,7 @@ def build_sandwich_menu():
     print_header("Freshly topped sandwiches")
 
     # Prepare data for table rows
-    rows = [["Sandwich", "White", "Grain", "Focaccia", "Spelt", "Gluten-Free"]]
+    rows = [["Sandwich", "White", "Grain", "Foca", "Spelt", "G-Free"]]
 
     for product in sorted(menu["products"], key=lambda product: product["price"]):
         if not product["breadtypes"]:
@@ -124,12 +124,12 @@ def build_sandwich_menu():
     )  # Calculate column widths based on max string length in each column
 
     # Print the table
-    print("")
+    print("```")
     print(format_row(rows[0], col_widths))  # Print header row
     print(format_separator(col_widths))  # Print separator
     for row in rows[1:]:
         print(format_row(row, col_widths))  # Print data rows
-    print("\n")
+    print("```\n")
 
     with open("sandwich.pickle", "wb") as file:
         pickle.dump({"products": menu["products"], "codes": codes_sandwiches}, file)
@@ -193,12 +193,12 @@ def build_special_menu():
             )  # Calculate column widths based on max string length in each column
 
             # Print the table
-            print("")
+            print("```")
             print(format_row(rows[0], col_widths))  # Print header row
             print(format_separator(col_widths))  # Print separator
             for r in rows[1:]:
                 print(format_row(r, col_widths))  # Print data rows
-            print("\n")
+            print("```\n")
 
     with open("special.pickle", "wb") as file:
         pickle.dump({"products": menu["products"], "codes": codes_specials}, file)
@@ -244,12 +244,12 @@ def build_paninis_menu():
     )  # Calculate column widths based on max string length in each column
 
     # Print the table
-    print("")
+    print("```")
     print(format_row(rows[0], col_widths))  # Print header row
     print(format_separator(col_widths))  # Print separator
     for row in rows[1:]:
         print(format_row(row, col_widths))  # Print data rows
-    print("\n")
+    print("```\n")
 
     with open("panini.pickle", "wb") as file:
         pickle.dump({"products": menu["products"], "codes": codes_paninis}, file)
@@ -264,7 +264,7 @@ def print_pickle(lines, data, header):
     print_header(header)
 
     # Prepare data for table rows
-    rows = [["Sandwich", "Bread Type", "Quantity"]]
+    rows = [["Sandwich", "Type", "Quantity"]]
 
     for line in lines:
         if int(line) in data["codes"]:
