@@ -309,7 +309,7 @@ def open_pickle(filename):
     return data
 
 
-def main():
+def menu():
     sandwich_pickle = open_pickle("sandwich")
     panini_pickle = open_pickle("panini")
     special_pickle = open_pickle("special")
@@ -356,4 +356,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    menu()
