@@ -1,4 +1,5 @@
 from broodcode_modules.broodcode import menu
+from broodcode_modules.calculate_sandwiches import calculate_sandwiches
 
 def main():
     print("Welcome to the broodcode mass order system. Please select one of the following options")
@@ -22,7 +23,7 @@ def main():
             case 1:
                 menu()
             case 2:
-                pass # calculate the sandwishes in this option
+                calculate_sandwiches() # calculate the sandwishes in this option
             case 3:
                 pass # request the sandwich ingredients in this option
             case 4:

@@ -131,8 +131,8 @@ def build_sandwich_menu():
         print(format_row(row, col_widths))  # Print data rows
     print("```\n")
 
-    with open("sandwich.pickle", "wb") as file:
-        pickle.dump({"products": menu["products"], "codes": codes_sandwiches}, file)
+    with open("./pickles/sandwich.pickle", "wb") as file:
+        pickle.dump({"products": menu["products"], "codes": codes_sandwiches, "profit": totals["profit"] / totals["count"]}, file)
 
     return round(totals["profit"] / totals["count"])
 
@@ -200,8 +200,8 @@ def build_special_menu():
                 print(format_row(r, col_widths))  # Print data rows
             print("```\n")
 
-    with open("special.pickle", "wb") as file:
-        pickle.dump({"products": menu["products"], "codes": codes_specials}, file)
+    with open("./pickles/special.pickle", "wb") as file:
+        pickle.dump({"products": menu["products"], "codes": codes_specials, "profit": totals["profit"] / totals["count"]}, file)
 
     return round(totals["profit"] / totals["count"])
 
@@ -251,8 +251,8 @@ def build_paninis_menu():
         print(format_row(row, col_widths))  # Print data rows
     print("```\n")
 
-    with open("panini.pickle", "wb") as file:
-        pickle.dump({"products": menu["products"], "codes": codes_paninis}, file)
+    with open("./pickles/panini.pickle", "wb") as file:
+        pickle.dump({"products": menu["products"], "codes": codes_paninis, "profit": totals["profit"] / totals["count"]}, file)
 
     return round(totals["profit"] / totals["count"])
 
@@ -302,7 +302,7 @@ def print_pickle(lines, data, header):
 
 def open_pickle(filename):
     try:
-        with open(f"{filename}.pickle", "rb") as file:
+        with open(f"./pickles/{filename}.pickle", "rb") as file:
             data = pickle.load(file)
     except FileNotFoundError:
         return False
@@ -327,7 +327,7 @@ def menu():
         profit_paninis = build_paninis_menu()
     else:
         try:
-            with open("order.txt") as file:
+            with open("./order.txt") as file:
                 lines = [line.strip() for line in file.readlines() if line.strip()]
         except FileNotFoundError:
             print(
