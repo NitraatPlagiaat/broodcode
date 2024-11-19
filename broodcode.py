@@ -49,8 +49,15 @@ def calculate_price(bread_type, totals, product):
         "profit": totals["profit"],
         "count": totals["count"],
         "product": codes[price],
+<<<<<<< Updated upstream
         "price": price,
+=======
+        "price": format_price(add_yirnick_fee(price)),
+>>>>>>> Stashed changes
     }
+
+def add_yirnick_fee(price):
+    return price + 50
 
 
 def fetch_menu():
