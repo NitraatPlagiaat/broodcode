@@ -1,11 +1,10 @@
 import json
 import pickle
+import os
 from datetime import date
 from collections import defaultdict
 
 import requests
-
-APP_VERSION = "1.2.1"
 
 codes = {}
 versions = []
@@ -49,9 +48,24 @@ def calculate_price(bread_type, totals, product):
         "profit": totals["profit"],
         "count": totals["count"],
         "product": codes[price],
-        "price": price,
+        "price": format_price(add_yirnick_fee(price)),
     }
+def add_yirnick_fee(price):
+    return price + 50
 
+def format_price(price):
+    """
+    Converts a price in cents to a formatted string in euros with a comma as the decimal separator.
+    
+    Args:
+        price (int): The price in cents.
+    
+    Returns:
+        str: The formatted price in euros, e.g., "6,00" for 600.
+    """
+    euros = price // 100
+    cents = price % 100
+    return f"{euros},{cents:02d}"
 
 def fetch_menu():
     try:
@@ -111,7 +125,7 @@ def build_sandwich_menu():
                 prices = calculate_price(
                     menu["breadtypes"][bread_type_id], totals, product
                 )
-                codes_sandwiches[prices["price"]] = prices["product"]
+                codes_sandwiches[prices["price"].replace(",", "")] = prices["product"]
                 row.append(str(prices["price"]))
             else:
                 row.append("-")
@@ -131,10 +145,8 @@ def build_sandwich_menu():
         print(format_row(row, col_widths))  # Print data rows
     print("```\n")
 
-    with open("sandwich.pickle", "wb") as file:
-        pickle.dump({"products": menu["products"], "codes": codes_sandwiches}, file)
-
-    return round(totals["profit"] / totals["count"])
+    with open("./pickles/sandwich.pickle", "wb") as file:
+        pickle.dump({"products": menu["products"], "codes": codes_sandwiches, "profit": round(totals["profit"] / totals["count"])}, file)
 
 
 def build_special_menu():
@@ -173,7 +185,7 @@ def build_special_menu():
                 prices = calculate_price(
                     menu["breadtypes"][bread_type_id], totals, product
                 )
-                codes_specials[prices["price"]] = prices["product"]
+                codes_specials[prices["price"].replace(",", "")] = prices["product"]
                 row.append(str(prices["price"]))
             else:
                 row.append("-")
@@ -200,10 +212,8 @@ def build_special_menu():
                 print(format_row(r, col_widths))  # Print data rows
             print("```\n")
 
-    with open("special.pickle", "wb") as file:
-        pickle.dump({"products": menu["products"], "codes": codes_specials}, file)
-
-    return round(totals["profit"] / totals["count"])
+    with open("./pickles/special.pickle", "wb") as file:
+        pickle.dump({"products": menu["products"], "codes": codes_specials, "profit": round(totals["profit"] / totals["count"])}, file)
 
 
 def build_paninis_menu():
@@ -231,7 +241,7 @@ def build_paninis_menu():
             43 in compatible_bread_type_ids and 43 in menu["breadtypes"]
         ):  # ID for Focaccia
             prices = calculate_price(menu["breadtypes"][43], totals, product)
-            codes_paninis[prices["price"]] = prices["product"]
+            codes_paninis[prices["price"].replace(",", "")] = prices["product"]
             row.append(str(prices["price"]))
         else:
             row.append("-")
@@ -251,10 +261,8 @@ def build_paninis_menu():
         print(format_row(row, col_widths))  # Print data rows
     print("```\n")
 
-    with open("panini.pickle", "wb") as file:
-        pickle.dump({"products": menu["products"], "codes": codes_paninis}, file)
-
-    return round(totals["profit"] / totals["count"])
+    with open("./pickles/panini.pickle", "wb") as file:
+        pickle.dump({"products": menu["products"], "codes": codes_paninis, "profit": round(totals["profit"] / totals["count"])}, file)
 
 
 def print_pickle(lines, data, header):
@@ -302,7 +310,7 @@ def print_pickle(lines, data, header):
 
 def open_pickle(filename):
     try:
-        with open(f"{filename}.pickle", "rb") as file:
+        with open(f"./pickles/{filename}.pickle", "rb") as file:
             data = pickle.load(file)
     except FileNotFoundError:
         return False
@@ -310,50 +318,21 @@ def open_pickle(filename):
 
 
 def menu():
+    if not os.path.exists("./pickles"):
+        os.mkdir("./pickles")
+        
     sandwich_pickle = open_pickle("sandwich")
     panini_pickle = open_pickle("panini")
     special_pickle = open_pickle("special")
 
     print("COPY BLOCK")
-
-    profit_sandwiches = None
-    profit_paninis = None
-    profit_specials = None
+    
     if special_pickle is False:
-        profit_specials = build_special_menu()
+        build_special_menu()
     if sandwich_pickle is False:
-        profit_sandwiches = build_sandwich_menu()
+        build_sandwich_menu()
     if panini_pickle is False:
-        profit_paninis = build_paninis_menu()
-    else:
-        try:
-            with open("order.txt") as file:
-                lines = [line.strip() for line in file.readlines() if line.strip()]
-        except FileNotFoundError:
-            print(
-                "Create order.txt, with a single code per line, or delete data.pickle for a new order round"
-            )
-            exit(1)
-
-        print_pickle(lines, sandwich_pickle, "Freshly topped sandwiches")
-        print_pickle(lines, panini_pickle, "Paninis")
-        print_pickle(lines, special_pickle, "Special of the Week")
-
-        print("Don't forget to copy the sentence below to put in the notes on the order summary screen:")
-        print("'Graag, als dit mogelijk is, de broodsoorten op de zakken schrijven b.v.d.'")
-
-        exit()
-
-    print("/COPY BLOCK")
-    print()
-
-    if profit_sandwiches:
-        print(f"Average sandwich profit: {profit_sandwiches} cents per sandwich")
-    if profit_paninis:
-        print(f"Average panini profit: {profit_paninis} cents per panini")
-    if profit_specials:
-        print(f"Average special profit: {profit_specials} cents per special")
-
+        build_paninis_menu()
 
 if __name__ == "__main__":
     menu()
