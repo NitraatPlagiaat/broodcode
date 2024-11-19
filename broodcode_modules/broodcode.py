@@ -1,5 +1,6 @@
 import json
 import pickle
+import os
 from datetime import date
 from collections import defaultdict
 
@@ -47,9 +48,24 @@ def calculate_price(bread_type, totals, product):
         "profit": totals["profit"],
         "count": totals["count"],
         "product": codes[price],
-        "price": price,
+        "price": format_price(add_yirnick_fee(price)),
     }
+def add_yirnick_fee(price):
+    return price + 50
 
+def format_price(price):
+    """
+    Converts a price in cents to a formatted string in euros with a comma as the decimal separator.
+    
+    Args:
+        price (int): The price in cents.
+    
+    Returns:
+        str: The formatted price in euros, e.g., "6,00" for 600.
+    """
+    euros = price // 100
+    cents = price % 100
+    return f"{euros},{cents:02d}"
 
 def fetch_menu():
     try:
@@ -109,7 +125,7 @@ def build_sandwich_menu():
                 prices = calculate_price(
                     menu["breadtypes"][bread_type_id], totals, product
                 )
-                codes_sandwiches[prices["price"]] = prices["product"]
+                codes_sandwiches[prices["price"].replace(",", "")] = prices["product"]
                 row.append(str(prices["price"]))
             else:
                 row.append("-")
@@ -169,7 +185,7 @@ def build_special_menu():
                 prices = calculate_price(
                     menu["breadtypes"][bread_type_id], totals, product
                 )
-                codes_specials[prices["price"]] = prices["product"]
+                codes_specials[prices["price"].replace(",", "")] = prices["product"]
                 row.append(str(prices["price"]))
             else:
                 row.append("-")
@@ -225,7 +241,7 @@ def build_paninis_menu():
             43 in compatible_bread_type_ids and 43 in menu["breadtypes"]
         ):  # ID for Focaccia
             prices = calculate_price(menu["breadtypes"][43], totals, product)
-            codes_paninis[prices["price"]] = prices["product"]
+            codes_paninis[prices["price"].replace(",", "")] = prices["product"]
             row.append(str(prices["price"]))
         else:
             row.append("-")
@@ -302,6 +318,9 @@ def open_pickle(filename):
 
 
 def menu():
+    if not os.path.exists("./pickles"):
+        os.mkdir("./pickles")
+        
     sandwich_pickle = open_pickle("sandwich")
     panini_pickle = open_pickle("panini")
     special_pickle = open_pickle("special")
