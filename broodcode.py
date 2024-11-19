@@ -49,8 +49,12 @@ def calculate_price(bread_type, totals, product):
         "profit": totals["profit"],
         "count": totals["count"],
         "product": codes[price],
-        "price": format_price(price),
+        "price": format_price(add_yirnick_fee(price)),
     }
+
+
+def add_yirnick_fee(price):
+    return price + 50
 
 
 def format_price(price):
