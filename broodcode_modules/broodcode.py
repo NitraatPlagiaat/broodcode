@@ -5,8 +5,6 @@ from collections import defaultdict
 
 import requests
 
-APP_VERSION = "1.2.1"
-
 codes = {}
 versions = []
 
@@ -132,9 +130,7 @@ def build_sandwich_menu():
     print("```\n")
 
     with open("./pickles/sandwich.pickle", "wb") as file:
-        pickle.dump({"products": menu["products"], "codes": codes_sandwiches, "profit": totals["profit"] / totals["count"]}, file)
-
-    return round(totals["profit"] / totals["count"])
+        pickle.dump({"products": menu["products"], "codes": codes_sandwiches, "profit": round(totals["profit"] / totals["count"])}, file)
 
 
 def build_special_menu():
@@ -201,9 +197,7 @@ def build_special_menu():
             print("```\n")
 
     with open("./pickles/special.pickle", "wb") as file:
-        pickle.dump({"products": menu["products"], "codes": codes_specials, "profit": totals["profit"] / totals["count"]}, file)
-
-    return round(totals["profit"] / totals["count"])
+        pickle.dump({"products": menu["products"], "codes": codes_specials, "profit": round(totals["profit"] / totals["count"])}, file)
 
 
 def build_paninis_menu():
@@ -252,9 +246,7 @@ def build_paninis_menu():
     print("```\n")
 
     with open("./pickles/panini.pickle", "wb") as file:
-        pickle.dump({"products": menu["products"], "codes": codes_paninis, "profit": totals["profit"] / totals["count"]}, file)
-
-    return round(totals["profit"] / totals["count"])
+        pickle.dump({"products": menu["products"], "codes": codes_paninis, "profit": round(totals["profit"] / totals["count"])}, file)
 
 
 def print_pickle(lines, data, header):
@@ -315,45 +307,13 @@ def menu():
     special_pickle = open_pickle("special")
 
     print("COPY BLOCK")
-
-    profit_sandwiches = None
-    profit_paninis = None
-    profit_specials = None
+    
     if special_pickle is False:
-        profit_specials = build_special_menu()
+        build_special_menu()
     if sandwich_pickle is False:
-        profit_sandwiches = build_sandwich_menu()
+        build_sandwich_menu()
     if panini_pickle is False:
-        profit_paninis = build_paninis_menu()
-    else:
-        try:
-            with open("./order.txt") as file:
-                lines = [line.strip() for line in file.readlines() if line.strip()]
-        except FileNotFoundError:
-            print(
-                "Create order.txt, with a single code per line, or delete data.pickle for a new order round"
-            )
-            exit(1)
-
-        print_pickle(lines, sandwich_pickle, "Freshly topped sandwiches")
-        print_pickle(lines, panini_pickle, "Paninis")
-        print_pickle(lines, special_pickle, "Special of the Week")
-
-        print("Don't forget to copy the sentence below to put in the notes on the order summary screen:")
-        print("'Graag, als dit mogelijk is, de broodsoorten op de zakken schrijven b.v.d.'")
-
-        exit()
-
-    print("/COPY BLOCK")
-    print()
-
-    if profit_sandwiches:
-        print(f"Average sandwich profit: {profit_sandwiches} cents per sandwich")
-    if profit_paninis:
-        print(f"Average panini profit: {profit_paninis} cents per panini")
-    if profit_specials:
-        print(f"Average special profit: {profit_specials} cents per special")
-
+        build_paninis_menu()
 
 if __name__ == "__main__":
     menu()

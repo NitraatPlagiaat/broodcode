@@ -1,6 +1,8 @@
 from broodcode_modules.broodcode import menu
 from broodcode_modules.calculate_sandwiches import calculate_sandwiches
 
+APP_VERSION = "1.2.1"
+
 def main():
     print("Welcome to the broodcode mass order system. Please select one of the following options")
     while True:
