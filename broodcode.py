@@ -49,15 +49,27 @@ def calculate_price(bread_type, totals, product):
         "profit": totals["profit"],
         "count": totals["count"],
         "product": codes[price],
-<<<<<<< Updated upstream
         "price": price,
-=======
-        "price": format_price(add_yirnick_fee(price)),
->>>>>>> Stashed changes
+        "price": format_price(add_yirnick_fee(price))
     }
 
 def add_yirnick_fee(price):
     return price + 50
+
+
+def format_price(price):
+    """
+    Converts a price in cents to a formatted string in euros with a comma as the decimal separator.
+    
+    Args:
+        price (int): The price in cents.
+    
+    Returns:
+        str: The formatted price in euros, e.g., "6,00" for 600.
+    """
+    euros = price // 100
+    cents = price % 100
+    return f"{euros},{cents:02d}"
 
 
 def fetch_menu():
