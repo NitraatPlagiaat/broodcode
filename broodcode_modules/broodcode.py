@@ -284,74 +284,15 @@ def build_paninis_menu():
         pickle.dump({"products": menu["products"], "codes": codes_paninis, "profit": round(totals["profit"] / totals["count"])}, file)
 
 
-def print_pickle(lines, data, header):
-    totals = {"profit": 0, "count": 0}
-    orders = defaultdict(lambda: defaultdict(int))
-
-    print_header(header)
-
-    # Prepare data for table rows
-    rows = [["Sandwich", "Type", "Quantity"]]
-
-    for line in lines:
-        if int(line) in data["codes"]:
-            title, bread_type, profit = data["codes"][int(line)]
-            orders[title][bread_type] += 1
-            totals["profit"] += profit
-            totals["count"] += 1
-
-    for product in data["products"]:
-        o = orders.get(product["title"])
-        if o:
-            for bread_type, quantity in sorted(o.items()):
-                # Add row to rows list
-                rows.append(
-                    [
-                        product["title"].split(":")[0].strip(),
-                        bread_type.lower(),
-                        quantity,
-                    ]
-                )
-
-    col_widths = get_max_widths(
-        rows
-    )  # Calculate column widths based on max string length in each column
-
-    # Print the table
-    print(format_row(rows[0], col_widths))  # Print header row
-    print(format_separator(col_widths))  # Print separator
-    for row in rows[1:]:
-        print(format_row(row, col_widths))  # Print data rows
-
-    print(f"\n{totals['count']} sandwiches. {totals['profit']} cents profit!")
-    print("")
-
-
-def open_pickle(filename):
-    try:
-        with open(f"./pickles/{filename}.pickle", "rb") as file:
-            data = pickle.load(file)
-    except FileNotFoundError:
-        return False
-    return data
-
-
 def menu():
     if not os.path.exists("./pickles"):
         os.mkdir("./pickles")
-        
-    sandwich_pickle = open_pickle("sandwich")
-    panini_pickle = open_pickle("panini")
-    special_pickle = open_pickle("special")
-
+    
     print("COPY BLOCK")
     
-    if special_pickle is False:
-        build_special_menu()
-    if sandwich_pickle is False:
-        build_sandwich_menu()
-    if panini_pickle is False:
-        build_paninis_menu()
+    build_special_menu()
+    build_sandwich_menu()
+    build_paninis_menu()
 
 if __name__ == "__main__":
     menu()
